@@ -17,7 +17,7 @@ import "./BaseAccount.sol";
  *  has execute, eth handling methods
  *  has a single signer that can send requests through the entryPoint.
  */
-contract SimpleAccount is BaseAccount, UUPSUpgradeable, Initializable {
+contract Account is BaseAccount, UUPSUpgradeable, Initializable {
     //explicit sizes of nonce, to fit a single storage cell with "owner"
     uint96 private _nonce;
     address public owner;
