@@ -5,6 +5,8 @@ import {
   AccountFactory__factory,
   EntryPoint,
   EntryPoint__factory,
+  TestPaymaster,
+  TestPaymaster__factory,
   TestToken,
   TestToken__factory,
   Verifier__factory,
@@ -13,10 +15,10 @@ import { Verifier } from "../typechain-types/contracts/Verifier";
 import { Signers } from "./types";
 
 import { expect } from "chai";
+import { BigNumber, Wallet } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import type { UserOperationStruct } from "../typechain-types/contracts/EntryPoint";
 import { createAccount, createAccountOwner, fund } from "./testutils";
-import { BigNumber } from "ethers";
 
 const AddressZero = ethers.constants.AddressZero;
 const HashZero = ethers.constants.HashZero;
@@ -80,7 +82,7 @@ async function generateAccountAndERC20TransferOp(
     maxFeePerGas: BigNumber.from(1016982020), // TODO
   };
 
-  return { account, op };
+  return { account, op, accountOwner };
 }
 
 describe("EntryPoint", function () {
@@ -88,12 +90,13 @@ describe("EntryPoint", function () {
 
   let verifier: Verifier;
   let entryPoint: EntryPoint;
+  let paymaster: TestPaymaster;
   let accountFactory: AccountFactory;
   let testToken: TestToken;
 
   // Accounts
   let beneficiary: SignerWithAddress;
-  let paymaster: SignerWithAddress;
+  let paymasterOwner: SignerWithAddress;
 
   before(async function () {
     this.signers = {} as Signers;
@@ -101,7 +104,7 @@ describe("EntryPoint", function () {
     const signers: SignerWithAddress[] = await ethers.getSigners();
     this.signers.admin = signers[0];
     beneficiary = signers[1];
-    paymaster = signers[2];
+    paymasterOwner = signers[2];
 
     verifier = await new Verifier__factory(this.signers.admin).deploy();
     console.log("verifier.address:", verifier.address);
@@ -110,6 +113,11 @@ describe("EntryPoint", function () {
       verifier.address
     );
     console.log("entryPoint.address:", entryPoint.address);
+
+    paymaster = await new TestPaymaster__factory(paymasterOwner).deploy(
+      entryPoint.address
+    );
+    console.log("paymaster.address:", paymaster.address);
 
     accountFactory = await new AccountFactory__factory(
       this.signers.admin
@@ -120,32 +128,40 @@ describe("EntryPoint", function () {
     console.log("testToken.address:", testToken.address);
   });
 
-  // describe("Stake Management", () => {
-  //   it("should deposit for transfer into EntryPoint", async () => {
-  //     const signer2 = (await ethers.getSigners())[2];
-  //     await signer2.sendTransaction({ to: entryPoint.address, value: ONE_ETH });
-  //     expect(await entryPoint.balanceOf(signer2.address)).to.eql(ONE_ETH);
+  it("should deposit for transfer into EntryPoint", async () => {
+    const paymasterStake = ONE_ETH.mul(100);
+    const paymasterDeposit = paymasterStake;
 
-  //     const depositInfo = await entryPoint.getDepositInfo(signer2.address);
-  //     expect(depositInfo.deposit).to.eql(ONE_ETH);
-  //     expect(depositInfo.staked).to.eql(false);
-  //     expect(depositInfo.stake.toNumber()).to.eql(0);
-  //     expect(depositInfo.unstakeDelaySec).to.eql(0);
-  //     expect(depositInfo.withdrawTime.toNumber()).to.eql(0);
-  //   });
-  // });
+    // await paymaster.addStake(2, { value: paymasterStake });
+    await paymaster.deposit({ value: paymasterDeposit });
+
+    expect(await entryPoint.balanceOf(paymaster.address)).to.eql(
+      paymasterStake
+    );
+
+    const depositInfo = await entryPoint.getDepositInfo(paymaster.address);
+    expect(depositInfo.deposit).to.eql(paymasterStake);
+    expect(depositInfo.staked).to.eql(false);
+    expect(depositInfo.stake.toNumber()).to.eql(0);
+    expect(depositInfo.unstakeDelaySec).to.eql(0);
+    expect(depositInfo.withdrawTime.toNumber()).to.eql(0);
+  });
 
   it("should succeed to handleOps", async function () {
+    const txLength = 10;
     const ops: UserOperationStruct[] = [];
-
-    for (let i = 0; i < 10; i++) {
-      const { account, op } = await generateAccountAndERC20TransferOp(
-        this.signers.admin,
-        accountFactory,
-        entryPoint,
-        testToken
-      );
+    const accountOwners: Wallet[] = [];
+    for (let i = 0; i < txLength; i++) {
+      const { account, op, accountOwner } =
+        await generateAccountAndERC20TransferOp(
+          this.signers.admin,
+          accountFactory,
+          entryPoint,
+          testToken
+        );
+      op.paymasterAndData = paymaster.address;
       ops.push(op);
+      accountOwners.push(accountOwner);
 
       console.log(
         "generateAccountAndERC20TransferOp:",
@@ -162,6 +178,17 @@ describe("EntryPoint", function () {
       .then(async (t) => t.wait());
 
     console.warn("resp.transactionHash:", resp.transactionHash);
+
+    for (const accountOwner of accountOwners) {
+      const balance = await testToken.balanceOf(accountOwner.address);
+      console.warn(
+        "accountOwner.address:",
+        accountOwner.address,
+        ", balance:",
+        balance + ""
+      );
+    }
+
     console.warn("resp.events:", resp.events);
   });
 });

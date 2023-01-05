@@ -3,6 +3,8 @@ pragma solidity ^0.8.12;
 
 import "./interfaces/IStakeManager.sol";
 
+import "hardhat/console.sol";
+
 /* solhint-disable avoid-low-level-calls */
 /* solhint-disable not-rely-on-time */
 /**

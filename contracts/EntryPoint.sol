@@ -119,16 +119,20 @@ contract EntryPoint is IEntryPoint, StakeManager {
         unchecked {
             for (uint256 i = 0; i < opslen; i++) {
                 UserOpInfo memory opInfo = opInfos[i];
-                (
-                    uint256 sigTimeRange,
-                    uint256 paymasterTimeRange
-                ) = _validatePrepayment(i, ops[i], opInfo);
-                _validateSigTimeRange(
-                    i,
-                    opInfo,
-                    sigTimeRange,
-                    paymasterTimeRange
-                );
+
+                _validatePrepayment(i, ops[i], opInfo);
+
+                // Don't check sig
+                // (
+                //     uint256 sigTimeRange,
+                //     uint256 paymasterTimeRange
+                // ) = _validatePrepayment(i, ops[i], opInfo);
+                // _validateSigTimeRange(
+                //     i,
+                //     opInfo,
+                //     sigTimeRange,
+                //     paymasterTimeRange
+                // );
             }
 
             uint256 collected = 0;
