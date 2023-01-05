@@ -11,6 +11,8 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "./BaseAccount.sol";
 
+import "hardhat/console.sol";
+
 /**
  * minimal account.
  *  this is sample minimal account.
@@ -89,6 +91,7 @@ contract Account is BaseAccount, UUPSUpgradeable, Initializable {
      * upgraded to a newer version.
      */
     function initialize(address anOwner) public virtual initializer {
+        _nonce = 1;
         _initialize(anOwner);
     }
 
@@ -116,7 +119,9 @@ contract Account is BaseAccount, UUPSUpgradeable, Initializable {
     function _validateAndUpdateNonce(
         UserOperation calldata userOp
     ) internal override {
-        require(_nonce++ == userOp.nonce, "account: invalid nonce");
+        unchecked {
+            require(_nonce++ == userOp.nonce, "account: invalid nonce");
+        }
     }
 
     function _call(address target, uint256 value, bytes memory data) internal {

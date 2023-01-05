@@ -97,12 +97,14 @@ contract EntryPoint is IEntryPoint, StakeManager {
     /**
      * Execute a batch of UserOperation.
      * @param ops the operations to execute
+     * @param proof for zk-snark
+     * @param pubSignals for zk-snark
      * @param beneficiary the address to receive the fees
      */
     function handleOps(
         UserOperation[] calldata ops,
-        bytes memory proof,
-        uint[] memory pubSignals,
+        bytes calldata proof,
+        uint[] calldata pubSignals,
         address payable beneficiary
     ) public {
         // Check proof

@@ -82,8 +82,8 @@ interface IEntryPoint is IStakeManager {
      */
     function handleOps(
         UserOperation[] calldata ops,
-        bytes memory proof,
-        uint[] memory pubSignals,
+        bytes calldata proof,
+        uint[] calldata pubSignals,
         address payable beneficiary
     ) external;
 
