@@ -55,9 +55,11 @@ async function generateAccountAndERC20TransferOp(
     accountFactory
   );
 
-  const amount = ONE_ETH.div(1000);
+  const amount = ONE_ETH.div(10000);
 
-  await testToken.transfer(account.address, amount);
+  await testToken
+    .transfer(account.address, amount)
+    .then(async (t) => await t.wait());
 
   await fund(account);
 
@@ -175,7 +177,7 @@ describe("EntryPoint", function () {
       .handleOps(ops, "0x", [], beneficiary.address, {
         maxFeePerGas: 1e9,
       })
-      .then(async (t) => t.wait());
+      .then(async (t) => await t.wait());
 
     console.warn("resp.transactionHash:", resp.transactionHash);
 
