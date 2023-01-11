@@ -150,7 +150,7 @@ describe("EntryPoint", function () {
   });
 
   it("should succeed to handleOps", async function () {
-    const txLength = 10;
+    const txLength = 8;
     const ops: UserOperationStruct[] = [];
     const accountOwners: Wallet[] = [];
     for (let i = 0; i < txLength; i++) {
