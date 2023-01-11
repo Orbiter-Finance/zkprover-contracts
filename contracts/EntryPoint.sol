@@ -135,13 +135,13 @@ contract EntryPoint is IEntryPoint, StakeManager {
                 // );
             }
 
-            uint256 collected = 0;
+            // uint256 collected = 0;
 
-            for (uint256 i = 0; i < opslen; i++) {
-                collected += _executeUserOp(i, ops[i], opInfos[i]);
-            }
+            // for (uint256 i = 0; i < opslen; i++) {
+            //     collected += _executeUserOp(i, ops[i], opInfos[i]);
+            // }
 
-            _compensate(beneficiary, collected);
+            // _compensate(beneficiary, collected);
         } //unchecked
     }
 
@@ -409,40 +409,40 @@ contract EntryPoint is IEntryPoint, StakeManager {
     {
         unchecked {
             uint256 preGas = gasleft();
-            MemoryUserOp memory mUserOp = opInfo.mUserOp;
-            address sender = mUserOp.sender;
-            _createSenderIfNeeded(opIndex, opInfo, op.initCode);
-            uint256 missingAccountFunds = 0;
-            address paymaster = mUserOp.paymaster;
-            if (paymaster == address(0)) {
-                uint256 bal = balanceOf(sender);
-                missingAccountFunds = bal > requiredPrefund
-                    ? 0
-                    : requiredPrefund - bal;
-            }
-            try
-                IAccount(sender).validateUserOp{
-                    gas: mUserOp.verificationGasLimit
-                }(op, missingAccountFunds)
-            returns (uint256 _sigTimeRange) {
-                sigTimeRange = _sigTimeRange;
-            } catch Error(string memory revertReason) {
-                revert FailedOp(opIndex, address(0), revertReason);
-            } catch {
-                revert FailedOp(opIndex, address(0), "AA23 reverted (or OOG)");
-            }
-            if (paymaster == address(0)) {
-                DepositInfo storage senderInfo = deposits[sender];
-                uint256 deposit = senderInfo.deposit;
-                if (requiredPrefund > deposit) {
-                    revert FailedOp(
-                        opIndex,
-                        address(0),
-                        "AA21 didn't pay prefund"
-                    );
-                }
-                senderInfo.deposit = uint112(deposit - requiredPrefund);
-            }
+            // MemoryUserOp memory mUserOp = opInfo.mUserOp;
+            // address sender = mUserOp.sender;
+            // _createSenderIfNeeded(opIndex, opInfo, op.initCode);
+            // uint256 missingAccountFunds = 0;
+            // address paymaster = mUserOp.paymaster;
+            // if (paymaster == address(0)) {
+            //     uint256 bal = balanceOf(sender);
+            //     missingAccountFunds = bal > requiredPrefund
+            //         ? 0
+            //         : requiredPrefund - bal;
+            // }
+            // try
+            //     IAccount(sender).validateUserOp{
+            //         gas: mUserOp.verificationGasLimit
+            //     }(op, missingAccountFunds)
+            // returns (uint256 _sigTimeRange) {
+            //     sigTimeRange = _sigTimeRange;
+            // } catch Error(string memory revertReason) {
+            //     revert FailedOp(opIndex, address(0), revertReason);
+            // } catch {
+            //     revert FailedOp(opIndex, address(0), "AA23 reverted (or OOG)");
+            // }
+            // if (paymaster == address(0)) {
+            //     DepositInfo storage senderInfo = deposits[sender];
+            //     uint256 deposit = senderInfo.deposit;
+            //     if (requiredPrefund > deposit) {
+            //         revert FailedOp(
+            //             opIndex,
+            //             address(0),
+            //             "AA21 didn't pay prefund"
+            //         );
+            //     }
+            //     senderInfo.deposit = uint112(deposit - requiredPrefund);
+            // }
             gasUsedByValidateAccountPrepayment = preGas - gasleft();
         }
     }
@@ -600,6 +600,8 @@ contract EntryPoint is IEntryPoint, StakeManager {
         _copyUserOpToMemory(userOp, mUserOp);
         outOpInfo.userOpHash = getUserOpHash(userOp);
 
+        console.log("gasleft() 603:", gasleft());
+
         // validate all numeric values in userOp are well below 128 bit, so they can safely be added
         // and multiplied without causing overflow
         uint256 maxGasValues = mUserOp.preVerificationGas |
@@ -608,6 +610,8 @@ contract EntryPoint is IEntryPoint, StakeManager {
             userOp.maxFeePerGas |
             userOp.maxPriorityFeePerGas;
         require(maxGasValues <= type(uint120).max, "AA94 gas values overflow");
+
+        console.log("gasleft() 614:", gasleft());
 
         uint256 gasUsedByValidateAccountPrepayment;
         uint256 requiredPreFund = _getRequiredPrefund(mUserOp);
@@ -624,6 +628,8 @@ contract EntryPoint is IEntryPoint, StakeManager {
         // (used only by off-chain simulateValidation)
         numberMarker();
 
+        console.log("gasleft() 631:", gasleft());
+
         bytes memory context;
         if (mUserOp.paymaster != address(0)) {
             (context, paymasterTimeRange) = _validatePaymasterPrepayment(
@@ -634,6 +640,9 @@ contract EntryPoint is IEntryPoint, StakeManager {
                 gasUsedByValidateAccountPrepayment
             );
         }
+
+        console.log("gasleft() 644:", gasleft());
+
         unchecked {
             uint256 gasUsed = preGas - gasleft();
 
@@ -648,6 +657,8 @@ contract EntryPoint is IEntryPoint, StakeManager {
             outOpInfo.contextOffset = getOffsetOfMemoryBytes(context);
             outOpInfo.preOpGas = preGas - gasleft() + userOp.preVerificationGas;
         }
+
+        console.log("gasleft() 661:", gasleft());
     }
 
     /**

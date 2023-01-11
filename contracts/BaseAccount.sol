@@ -8,6 +8,8 @@ pragma solidity ^0.8.12;
 import "./interfaces/IAccount.sol";
 import "./interfaces/IEntryPoint.sol";
 
+import "hardhat/console.sol";
+
 /**
  * Basic account implementation.
  * this contract provides the basic logic for implementing the IAccount interface  - validateUserOp
