@@ -150,7 +150,7 @@ describe("EntryPoint", function () {
   });
 
   it("should succeed to handleOps", async function () {
-    const txLength = 8;
+    const txLength = 16;
     const ops: UserOperationStruct[] = [];
     const accountOwners: Wallet[] = [];
     for (let i = 0; i < txLength; i++) {
@@ -191,6 +191,9 @@ describe("EntryPoint", function () {
       );
     }
 
-    console.warn("resp.events:", resp.events);
+    console.warn(
+      "resp.events:",
+      resp.events?.map((item) => item.event)
+    );
   });
 });
