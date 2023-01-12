@@ -214,9 +214,14 @@ contract EntryPoint is IEntryPoint, StakeManager {
 
         IPaymaster.PostOpMode mode = IPaymaster.PostOpMode.opSucceeded;
         if (callData.length > 0) {
+            console.log("gasleft() 217:", gasleft());
+
             (bool success, bytes memory result) = address(mUserOp.sender).call{
                 gas: callGasLimit
             }(callData);
+
+            console.log("gasleft() 223:", gasleft());
+
             if (!success) {
                 if (result.length > 0) {
                     emit UserOperationRevertReason(
@@ -601,7 +606,9 @@ contract EntryPoint is IEntryPoint, StakeManager {
     ) private returns (uint256 sigTimeRange, uint256 paymasterTimeRange) {
         uint256 preGas = gasleft();
         MemoryUserOp memory mUserOp = outOpInfo.mUserOp;
+
         _copyUserOpToMemory(userOp, mUserOp);
+
         outOpInfo.userOpHash = getUserOpHash(userOp);
 
         // validate all numeric values in userOp are well below 128 bit, so they can safely be added
@@ -615,6 +622,7 @@ contract EntryPoint is IEntryPoint, StakeManager {
 
         uint256 gasUsedByValidateAccountPrepayment;
         uint256 requiredPreFund = _getRequiredPrefund(mUserOp);
+
         (
             gasUsedByValidateAccountPrepayment,
             sigTimeRange
@@ -624,6 +632,7 @@ contract EntryPoint is IEntryPoint, StakeManager {
             outOpInfo,
             requiredPreFund
         );
+
         //a "marker" where account opcode validation is done and paymaster opcode validation is about to start
         // (used only by off-chain simulateValidation)
         numberMarker();

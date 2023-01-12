@@ -71,6 +71,7 @@ contract Account is BaseAccount, UUPSUpgradeable, Initializable {
 
     /**
      * execute a sequence of transaction
+     * TODO: ETH transfer is not supported for now
      */
     function executeBatch(
         address[] calldata dest,
@@ -158,6 +159,10 @@ contract Account is BaseAccount, UUPSUpgradeable, Initializable {
         entryPoint().withdrawTo(withdrawAddress, amount);
     }
 
+    /**
+     * TODO
+     * @param _authorizeUpgrade
+     */
     function _authorizeUpgrade(
         address newImplementation
     ) internal view override {
