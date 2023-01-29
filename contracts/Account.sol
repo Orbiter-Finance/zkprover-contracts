@@ -73,10 +73,9 @@ contract Account is BaseAccount, UUPSUpgradeable, Initializable {
      * execute a sequence of transaction
      * TODO: ETH transfer is not supported for now
      */
-    function executeBatch(
-        address[] calldata dest,
-        bytes[] calldata func
-    ) external {
+    function executeBatch(address[] calldata dest, bytes[] calldata func)
+        external
+    {
         _requireFromEntryPointOrOwner();
         require(dest.length == func.length, "wrong array lengths");
         for (uint256 i = 0; i < dest.length; i++) {
@@ -115,15 +114,20 @@ contract Account is BaseAccount, UUPSUpgradeable, Initializable {
     }
 
     /// implement template method of BaseAccount
-    function _validateAndUpdateNonce(
-        UserOperation calldata userOp
-    ) internal override {
+    function _validateAndUpdateNonce(UserOperation calldata userOp)
+        internal
+        override
+    {
         unchecked {
             require(_nonce++ == userOp.nonce, "account: invalid nonce");
         }
     }
 
-    function _call(address target, uint256 value, bytes memory data) internal {
+    function _call(
+        address target,
+        uint256 value,
+        bytes memory data
+    ) internal {
         (bool success, bytes memory result) = target.call{value: value}(data);
         if (!success) {
             assembly {
@@ -152,20 +156,22 @@ contract Account is BaseAccount, UUPSUpgradeable, Initializable {
      * @param withdrawAddress target to send to
      * @param amount to withdraw
      */
-    function withdrawDepositTo(
-        address payable withdrawAddress,
-        uint256 amount
-    ) public onlyOwner {
+    function withdrawDepositTo(address payable withdrawAddress, uint256 amount)
+        public
+        onlyOwner
+    {
         entryPoint().withdrawTo(withdrawAddress, amount);
     }
 
     /**
      * TODO
-     * @param _authorizeUpgrade
+     * @param newImplementation #
      */
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal view override {
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        view
+        override
+    {
         (newImplementation);
         _onlyOwner();
     }

@@ -44,10 +44,10 @@ contract DepositPaymaster is BasePaymaster {
     /**
      * owner of the paymaster should add supported tokens
      */
-    function addToken(
-        IERC20 token,
-        IOracle tokenPriceOracle
-    ) external onlyOwner {
+    function addToken(IERC20 token, IOracle tokenPriceOracle)
+        external
+        onlyOwner
+    {
         require(oracles[token] == NULL_ORACLE);
         oracles[token] = tokenPriceOracle;
     }
@@ -76,10 +76,11 @@ contract DepositPaymaster is BasePaymaster {
         }
     }
 
-    function depositInfo(
-        IERC20 token,
-        address account
-    ) public view returns (uint256 amount, uint256 _unlockBlock) {
+    function depositInfo(IERC20 token, address account)
+        public
+        view
+        returns (uint256 amount, uint256 _unlockBlock)
+    {
         amount = balances[token][account];
         _unlockBlock = unlockBlock[account];
     }
@@ -127,10 +128,12 @@ contract DepositPaymaster is BasePaymaster {
      * @param ethBought the required eth value we want to "buy"
      * @return requiredTokens the amount of tokens required to get this amount of eth
      */
-    function getTokenValueOfEth(
-        IERC20 token,
-        uint256 ethBought
-    ) internal view virtual returns (uint256 requiredTokens) {
+    function getTokenValueOfEth(IERC20 token, uint256 ethBought)
+        internal
+        view
+        virtual
+        returns (uint256 requiredTokens)
+    {
         IOracle oracle = oracles[token];
         require(oracle != NULL_ORACLE, "DepositPaymaster: unsupported token");
         return oracle.getTokenValueOfEth(ethBought);

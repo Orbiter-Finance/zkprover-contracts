@@ -5,10 +5,11 @@ import "./interfaces/IVerifier.sol";
 
 // Todo
 contract Verifier is IVerifier {
-    function verifyProof(
-        bytes memory proof,
-        uint[] memory pubSignals
-    ) external view returns (bool) {
+    function verifyProof(bytes memory proof, uint[] memory pubSignals)
+        external
+        view
+        returns (bool)
+    {
         (proof, pubSignals);
         return true;
     }

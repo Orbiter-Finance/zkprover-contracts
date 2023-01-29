@@ -83,9 +83,9 @@ abstract contract BaseAccount is IAccount {
      * called only if initCode is empty (since "nonce" field is used as "salt" on account creation)
      * @param userOp the op to validate.
      */
-    function _validateAndUpdateNonce(
-        UserOperation calldata userOp
-    ) internal virtual;
+    function _validateAndUpdateNonce(UserOperation calldata userOp)
+        internal
+        virtual;
 
     /**
      * sends to the entrypoint (msg.sender) the missing funds for this transaction.

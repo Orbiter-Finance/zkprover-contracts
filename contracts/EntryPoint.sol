@@ -246,9 +246,11 @@ contract EntryPoint is IEntryPoint, StakeManager {
      * generate a request Id - unique identifier for this request.
      * the request ID is a hash over the content of the userOp (except the signature), the entrypoint and the chainid.
      */
-    function getUserOpHash(
-        UserOperation calldata userOp
-    ) public view returns (bytes32) {
+    function getUserOpHash(UserOperation calldata userOp)
+        public
+        view
+        returns (bytes32)
+    {
         return
             keccak256(abi.encode(userOp.hash(), address(this), block.chainid));
     }
@@ -327,9 +329,11 @@ contract EntryPoint is IEntryPoint, StakeManager {
         );
     }
 
-    function _getRequiredPrefund(
-        MemoryUserOp memory mUserOp
-    ) internal view returns (uint256 requiredPrefund) {
+    function _getRequiredPrefund(MemoryUserOp memory mUserOp)
+        internal
+        view
+        returns (uint256 requiredPrefund)
+    {
         unchecked {
             //when using a Paymaster, the verificationGasLimit is used also to as a limit for the postOp call.
             // our security model might call postOp eventually twice
@@ -541,9 +545,11 @@ contract EntryPoint is IEntryPoint, StakeManager {
         }
     }
 
-    function _getSigTimeRange(
-        uint sigTimeRange
-    ) internal view returns (bool sigFailed, bool outOfTimeRange) {
+    function _getSigTimeRange(uint sigTimeRange)
+        internal
+        view
+        returns (bool sigFailed, bool outOfTimeRange)
+    {
         if (sigTimeRange == 0) {
             return (false, false);
         }
@@ -558,12 +564,14 @@ contract EntryPoint is IEntryPoint, StakeManager {
 
     //extract sigFailed, validAfter, validUntil.
     // also convert zero validUntil to type(uint64).max
-    function _parseSigTimeRange(
-        uint sigTimeRange
-    )
+    function _parseSigTimeRange(uint sigTimeRange)
         internal
         pure
-        returns (bool sigFailed, uint64 validAfter, uint64 validUntil)
+        returns (
+            bool sigFailed,
+            uint64 validAfter,
+            uint64 validUntil
+        )
     {
         sigFailed = uint8(sigTimeRange) != 0;
         // subtract one, to explicitly treat zero as max-value
@@ -572,13 +580,14 @@ contract EntryPoint is IEntryPoint, StakeManager {
     }
 
     // intersect account and paymaster ranges.
-    function _intersectTimeRange(
-        uint sigTimeRange,
-        uint paymasterTimeRange
-    )
+    function _intersectTimeRange(uint sigTimeRange, uint paymasterTimeRange)
         internal
         pure
-        returns (bool sigFailed, uint64 validAfter, uint64 validUntil)
+        returns (
+            bool sigFailed,
+            uint64 validAfter,
+            uint64 validUntil
+        )
     {
         (sigFailed, validAfter, validUntil) = _parseSigTimeRange(sigTimeRange);
         (
@@ -745,9 +754,11 @@ contract EntryPoint is IEntryPoint, StakeManager {
      * the gas price this UserOp agrees to pay.
      * relayer/block builder might submit the TX with higher priorityFee, but the user should not
      */
-    function getUserOpGasPrice(
-        MemoryUserOp memory mUserOp
-    ) internal view returns (uint256) {
+    function getUserOpGasPrice(MemoryUserOp memory mUserOp)
+        internal
+        view
+        returns (uint256)
+    {
         unchecked {
             uint256 maxFeePerGas = mUserOp.maxFeePerGas;
             uint256 maxPriorityFeePerGas = mUserOp.maxPriorityFeePerGas;
@@ -763,17 +774,21 @@ contract EntryPoint is IEntryPoint, StakeManager {
         return a < b ? a : b;
     }
 
-    function getOffsetOfMemoryBytes(
-        bytes memory data
-    ) internal pure returns (uint256 offset) {
+    function getOffsetOfMemoryBytes(bytes memory data)
+        internal
+        pure
+        returns (uint256 offset)
+    {
         assembly {
             offset := data
         }
     }
 
-    function getMemoryBytesFromOffset(
-        uint256 offset
-    ) internal pure returns (bytes memory data) {
+    function getMemoryBytesFromOffset(uint256 offset)
+        internal
+        pure
+        returns (bytes memory data)
+    {
         assembly {
             data := offset
         }
