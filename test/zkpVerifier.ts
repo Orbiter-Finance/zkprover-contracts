@@ -3,8 +3,9 @@ import { ethers } from "hardhat";
 import { Signers } from "./types";
 import { BigNumber } from "@ethersproject/bignumber";
 import { ZkpVerifier, ZkpVerifier__factory } from "../typechain-types";
-import { TestZkpVerifier, TestZkpVerifier__factory } from "../typechain-types";
+import { ZkProverZkpVerifierWrapper, ZkProverZkpVerifierWrapper__factory} from "../typechain-types";
 import fs from "fs";
+import  ProofData  from "./zkp_output/proof.json"
 
 import { halo2zkpVerifierAbi, compile_yul } from "../scripts/utils";
 
@@ -25,8 +26,8 @@ function bufferToUint256LE(buffer: Buffer) {
 
 describe("zkpVerifier", function () {
   let verifier: ZkpVerifier;
-  let verifierTest: TestZkpVerifier;
   const provider = ethers.provider;
+  let zkProverVerify: ZkProverZkpVerifierWrapper;
 
   before(async function () {
     this.signers = {} as Signers;
@@ -43,10 +44,23 @@ describe("zkpVerifier", function () {
     );
     const verifyContract = await factory.deploy();
     console.log(`contract address ${verifyContract.address}`);
+
+    zkProverVerify = await new ZkProverZkpVerifierWrapper__factory(this.signers.admin).deploy(verifyContract.address);
+    console.log(`zkProverVerify address ${zkProverVerify.address}`)
   });
 
   it("deploy with compiled code", async () => {
     // const factory = new ethers.ContractFactory([], bytecode, signer);
     // const contract = await factory.deploy();
+    const tx = await zkProverVerify.verify(
+      [BigNumber.from(ProofData.pub_ins[0])],
+      ProofData.proof
+    )
+
+    tx.wait()
+
+    const txResult = await provider.getTransactionReceipt(tx.hash)
+    console.log(`zkp txHash ${tx.hash} gasUsed ${JSON.stringify(txResult.gasUsed.toString())}`)
+
   });
 });

@@ -27,7 +27,7 @@ export const compile_yul = async (codePath: string):Promise<string> => {
 }
 
 export const encode_zkp_call_data = () => {
-    
+
 }
 
 export const halo2zkpVerifierAbi = [
