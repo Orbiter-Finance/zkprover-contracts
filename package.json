@@ -7,6 +7,9 @@
     "url": "https://github.com/linkdrone"
   },
   "license": "GPL-3.0",
+  "scripts": {
+    "test": "./scripts/hh-wrapper test"
+  },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/abstract-signer": "^5.7.0",
