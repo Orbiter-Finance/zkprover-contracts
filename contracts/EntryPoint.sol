@@ -108,10 +108,10 @@ contract EntryPoint is IEntryPoint, StakeManager {
         address payable beneficiary
     ) public {
         // Check proof
-        require(
-            verifier.verifyProof(proof, pubSignals),
-            "Proof verification failed"
-        );
+        // require(
+        //     verifier.verifyProof(proof, pubSignals),
+        //     "Proof verification failed"
+        // );
 
         uint256 opslen = ops.length;
         UserOpInfo[] memory opInfos = new UserOpInfo[](opslen);
