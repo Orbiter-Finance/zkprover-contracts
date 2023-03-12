@@ -9,9 +9,9 @@ import {
   TestPaymaster__factory,
   TestToken,
   TestToken__factory,
-  Verifier__factory,
+  ZkProverZkpVerifierWrapper__factory,
 } from "../typechain-types";
-import { Verifier } from "../typechain-types/contracts/Verifier";
+import { ZkProverZkpVerifierWrapper } from "../typechain-types/contracts/zkp/ZkProverZkpVerifierWrapper";
 import { Signers } from "./types";
 
 import { expect } from "chai";
@@ -19,6 +19,7 @@ import { BigNumber, Wallet } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import type { UserOperationStruct } from "../typechain-types/contracts/EntryPoint";
 import { createAccount, createAccountOwner, fund } from "./testutils";
+import { compile_yul, halo2zkpVerifierAbi } from "../scripts/utils";
 
 const AddressZero = ethers.constants.AddressZero;
 const HashZero = ethers.constants.HashZero;
@@ -90,7 +91,7 @@ async function generateAccountAndERC20TransferOp(
 describe("EntryPoint", function () {
   this.timeout(2000000);
 
-  let verifier: Verifier;
+  let verifier: ZkProverZkpVerifierWrapper;
   let entryPoint: EntryPoint;
   let paymaster: TestPaymaster;
   let accountFactory: AccountFactory;
@@ -108,7 +109,18 @@ describe("EntryPoint", function () {
     beneficiary = signers[1];
     paymasterOwner = signers[2];
 
-    verifier = await new Verifier__factory(this.signers.admin).deploy();
+
+    let verifyCode = await compile_yul("contracts/zkp/zkpVerifier.yul");
+    // console.log(`verifiyCode ${verifyCode}`)
+    const factory = new ethers.ContractFactory(
+      halo2zkpVerifierAbi,
+      verifyCode,
+      this.signers.admin
+    );
+    const verifyContract = await factory.deploy();
+    console.log(`contract address ${verifyContract.address}`);
+
+    verifier = await new ZkProverZkpVerifierWrapper__factory(this.signers.admin).deploy(verifyContract.address);
     console.log("verifier.address:", verifier.address);
 
     entryPoint = await new EntryPoint__factory(this.signers.admin).deploy(
@@ -191,6 +203,6 @@ describe("EntryPoint", function () {
       );
     }
 
-    console.warn("resp.events:", resp.events);
+    // console.warn("resp.events:", resp.events);
   });
 });
