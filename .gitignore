@@ -5,6 +5,7 @@ coverage.json
 typechain
 typechain-types
 /.yarn
+.*.txt
 
 # Hardhat files
 cache
