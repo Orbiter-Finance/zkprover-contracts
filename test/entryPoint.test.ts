@@ -100,6 +100,7 @@ describe("EntryPoint", function () {
   // Accounts
   let beneficiary: SignerWithAddress;
   let paymasterOwner: SignerWithAddress;
+  const provider = ethers.provider;
 
   before(async function () {
     this.signers = {} as Signers;
@@ -108,7 +109,6 @@ describe("EntryPoint", function () {
     this.signers.admin = signers[0];
     beneficiary = signers[1];
     paymasterOwner = signers[2];
-
 
     let verifyCode = await compile_yul("contracts/zkp/zkpVerifier.yul");
     // console.log(`verifiyCode ${verifyCode}`)
@@ -120,7 +120,9 @@ describe("EntryPoint", function () {
     const verifyContract = await factory.deploy();
     console.log(`contract address ${verifyContract.address}`);
 
-    verifier = await new ZkProverZkpVerifierWrapper__factory(this.signers.admin).deploy(verifyContract.address);
+    verifier = await new ZkProverZkpVerifierWrapper__factory(
+      this.signers.admin
+    ).deploy(verifyContract.address);
     console.log("verifier.address:", verifier.address);
 
     entryPoint = await new EntryPoint__factory(this.signers.admin).deploy(
@@ -190,8 +192,7 @@ describe("EntryPoint", function () {
         maxFeePerGas: 1e9,
       })
       .then(async (t) => await t.wait());
-
-    console.warn("resp.transactionHash:", resp.transactionHash);
+    console.log(`handleOps gasUsed ${JSON.stringify(resp.gasUsed.toString())}`);
 
     for (const accountOwner of accountOwners) {
       const balance = await testToken.balanceOf(accountOwner.address);

@@ -61,6 +61,13 @@ interface IEntryPoint is IStakeManager {
         bytes revertReason
     );
 
+    event UserOperationExecuteFeeLog(
+        bytes32 indexed userOpsUnionHash,
+        bytes32[] userOpsHash,
+        address[] senders,
+        uint256[] fees
+    );
+
     /**
      * a custom revert error of handleOps, to identify the offending op.
      *  NOTE: if simulateValidation passes successfully, there should be no reason for handleOps to fail on it.
@@ -83,7 +90,7 @@ interface IEntryPoint is IStakeManager {
     function handleOps(
         UserOperation[] calldata ops,
         bytes calldata proof,
-        uint[] calldata pubSignals,
+        uint256[] calldata pubSignals,
         address payable beneficiary
     ) external;
 

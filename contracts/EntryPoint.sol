@@ -104,7 +104,7 @@ contract EntryPoint is IEntryPoint, StakeManager {
     function handleOps(
         UserOperation[] calldata ops,
         bytes calldata proof,
-        uint[] calldata pubSignals,
+        uint256[] calldata pubSignals,
         address payable beneficiary
     ) public {
         // Check proof
@@ -420,17 +420,17 @@ contract EntryPoint is IEntryPoint, StakeManager {
                     ? 0
                     : requiredPrefund - bal;
             }
-            try
-                IAccount(sender).validateUserOp{
-                    gas: mUserOp.verificationGasLimit
-                }(op, missingAccountFunds)
-            returns (uint256 _sigTimeRange) {
-                sigTimeRange = _sigTimeRange;
-            } catch Error(string memory revertReason) {
-                revert FailedOp(opIndex, address(0), revertReason);
-            } catch {
-                revert FailedOp(opIndex, address(0), "AA23 reverted (or OOG)");
-            }
+            // try
+            //     IAccount(sender).validateUserOp{
+            //         gas: mUserOp.verificationGasLimit
+            //     }(op, missingAccountFunds)
+            // returns (uint256 _sigTimeRange) {
+            //     sigTimeRange = _sigTimeRange;
+            // } catch Error(string memory revertReason) {
+            //     revert FailedOp(opIndex, address(0), revertReason);
+            // } catch {
+            //     revert FailedOp(opIndex, address(0), "AA23 reverted (or OOG)");
+            // }
             if (paymaster == address(0)) {
                 DepositInfo storage senderInfo = deposits[sender];
                 uint256 deposit = senderInfo.deposit;
