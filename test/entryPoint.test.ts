@@ -165,7 +165,7 @@ describe("EntryPoint", function () {
   });
 
   it("should succeed to handleOps", async function () {
-    const txLength = 8;
+    const txLength = 15;
     const ops: UserOperationStruct[] = [];
     const accountOwners: Wallet[] = [];
     for (let i = 0; i < txLength; i++) {
@@ -200,17 +200,28 @@ describe("EntryPoint", function () {
         }
       )
       .then(async (t) => await t.wait());
-    console.log(`handleOps gasUsed ${JSON.stringify(resp.gasUsed.toString())}`);
 
-    for (const accountOwner of accountOwners) {
-      const balance = await testToken.balanceOf(accountOwner.address);
-      console.warn(
-        "accountOwner.address:",
-        accountOwner.address,
-        ", balance:",
-        balance + ""
-      );
-    }
+    const normalTx = await testToken
+      .transfer(accountOwners[1].address, BigNumber.from(100))
+      .then(async (t) => await t.wait());
+
+    console.log(
+      `handleOps gasUsed ${JSON.stringify(
+        resp.gasUsed.toString()
+      )} avg gas ${JSON.stringify(
+        resp.gasUsed.div(BigNumber.from(txLength)).toString()
+      )} normal gas ${JSON.stringify(normalTx.gasUsed.toString())}`
+    );
+
+    // for (const accountOwner of accountOwners) {
+    //   const balance = await testToken.balanceOf(accountOwner.address);
+    //   console.warn(
+    //     "accountOwner.address:",
+    //     accountOwner.address,
+    //     ", balance:",
+    //     balance + ""
+    //   );
+    // }
 
     // console.warn("resp.events:", resp.events);
   });

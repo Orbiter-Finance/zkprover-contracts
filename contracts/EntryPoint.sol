@@ -118,7 +118,9 @@ contract EntryPoint is IEntryPoint, StakeManager {
             for (uint256 i = 0; i < opslen; i++) {
                 UserOpInfo memory opInfo = opInfos[i];
 
-                _validatePrepayment(i, ops[i], opInfo);
+                // the validatePrepayment and signature check should be verify by zkp
+
+                // _validatePrepayment(i, ops[i], opInfo);
 
                 // Don't check sig
                 // (
