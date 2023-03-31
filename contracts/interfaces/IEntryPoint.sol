@@ -11,8 +11,9 @@ pragma solidity ^0.8.12;
 
 import "./UserOperation.sol";
 import "./IStakeManager.sol";
+import "./IWorldStateManager.sol";
 
-interface IEntryPoint is IStakeManager {
+interface IEntryPoint is IStakeManager, IWorldStateManager {
     /***
      * An event emitted after each successful request
      * @param userOpHash - unique identifier for the request (hash its entire content, except signature).

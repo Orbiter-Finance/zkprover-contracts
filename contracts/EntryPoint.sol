@@ -15,8 +15,8 @@ import "./interfaces/IEntryPoint.sol";
 import "./interfaces/IVerifier.sol";
 import "./StakeManager.sol";
 import "./SenderCreator.sol";
-
-contract EntryPoint is IEntryPoint, StakeManager {
+import "./WorldStateManager.sol";
+contract EntryPoint is IEntryPoint, StakeManager, WorldStateManager {
     using UserOperationLib for UserOperation;
 
     SenderCreator private immutable senderCreator = new SenderCreator();
