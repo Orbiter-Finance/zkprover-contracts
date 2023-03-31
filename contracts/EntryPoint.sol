@@ -16,6 +16,7 @@ import "./interfaces/IVerifier.sol";
 import "./StakeManager.sol";
 import "./SenderCreator.sol";
 import "./WorldStateManager.sol";
+
 contract EntryPoint is IEntryPoint, StakeManager, WorldStateManager {
     using UserOperationLib for UserOperation;
 
@@ -120,7 +121,7 @@ contract EntryPoint is IEntryPoint, StakeManager, WorldStateManager {
 
                 // the validatePrepayment and signature check should be verify by zkp
 
-                // _validatePrepayment(i, ops[i], opInfo);
+                _validatePrepayment(i, ops[i], opInfo);
 
                 // Don't check sig
                 // (
