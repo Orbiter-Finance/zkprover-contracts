@@ -104,14 +104,12 @@ contract EntryPoint is IEntryPoint, StakeManager {
     function handleOps(
         UserOperation[] calldata ops,
         bytes calldata proof,
-        uint256[] calldata pubSignals,
+        uint256[1] calldata pubSignals,
         address payable beneficiary
     ) public {
         // Check proof
-        // require(
-        //     verifier.verifyProof(proof, pubSignals),
-        //     "Proof verification failed"
-        // );
+
+        verifier.verify(pubSignals, proof);
 
         uint256 opslen = ops.length;
         UserOpInfo[] memory opInfos = new UserOpInfo[](opslen);

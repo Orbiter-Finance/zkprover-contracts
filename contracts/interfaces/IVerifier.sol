@@ -6,7 +6,7 @@ pragma solidity ^0.8.12;
  */
 interface IVerifier {
     function verify(
-        uint256[] calldata proof,
-        uint256[] calldata target_circuit_final_pair
+        uint256[1] calldata pub_ins,
+        bytes calldata proof
     ) external view;
 }

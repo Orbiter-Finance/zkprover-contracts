@@ -20,6 +20,7 @@ import { parseEther } from "ethers/lib/utils";
 import type { UserOperationStruct } from "../typechain-types/contracts/EntryPoint";
 import { createAccount, createAccountOwner, fund } from "./testutils";
 import { compile_yul, halo2zkpVerifierAbi } from "../scripts/utils";
+import ProofData from "./zkp_output/proof.json";
 
 const AddressZero = ethers.constants.AddressZero;
 const HashZero = ethers.constants.HashZero;
@@ -188,9 +189,16 @@ describe("EntryPoint", function () {
     }
 
     const resp = await entryPoint
-      .handleOps(ops, "0x", [], beneficiary.address, {
-        maxFeePerGas: 1e9,
-      })
+      .handleOps(
+        ops,
+        ProofData.proof,
+        [BigNumber.from(ProofData.pub_ins[0])],
+        beneficiary.address,
+        {
+          maxFeePerGas: 1e9,
+          gasLimit: 30000000,
+        }
+      )
       .then(async (t) => await t.wait());
     console.log(`handleOps gasUsed ${JSON.stringify(resp.gasUsed.toString())}`);
 

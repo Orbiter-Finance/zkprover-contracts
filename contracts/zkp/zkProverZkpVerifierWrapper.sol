@@ -3,7 +3,6 @@ pragma solidity ^0.8.12;
 
 contract zkProverZkpVerifierWrapper {
     address verifier_address;
-    uint256 cnt = 100;
 
     constructor(address vaddr) {
         verifier_address = vaddr;
@@ -67,7 +66,5 @@ contract zkProverZkpVerifierWrapper {
                 revertWith("verification-failed")
             }
         }
-
-        cnt += 1;
     }
 }
