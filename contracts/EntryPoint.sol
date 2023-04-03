@@ -48,6 +48,35 @@ contract EntryPoint is IEntryPoint, StakeManager, WorldStateManager {
         require(success, "AA91 failed send to beneficiary");
     }
 
+    function _fugalExecuteUserOp(
+        uint256 opIndex,
+        UserOperation calldata userOp
+    ) private returns (uint256 actualGas) {
+        uint256 preGas = gasleft();
+
+        bytes memory callData = userOp.callData;
+        address sender = userOp.sender;
+        uint256 callGasLimit = userOp.callGasLimit;
+
+        if (callData.length > 0) {
+            (bool success, bytes memory result) = address(sender).call{
+                gas: callGasLimit
+            }(callData);
+            if (!success) {
+                if (result.length > 0) {
+                    emit UserOperationRevertReason(
+                        userOp.hash(),
+                        userOp.sender,
+                        userOp.nonce,
+                        result
+                    );
+                }
+            }
+        }
+
+        uint256 actualGas = preGas - gasleft();
+    }
+
     /**
      * execute a user op
      * @param opIndex into into the opInfo array
@@ -113,37 +142,14 @@ contract EntryPoint is IEntryPoint, StakeManager, WorldStateManager {
         verifier.verify(pubSignals, proof);
 
         uint256 opslen = ops.length;
-        UserOpInfo[] memory opInfos = new UserOpInfo[](opslen);
 
         unchecked {
-            for (uint256 i = 0; i < opslen; i++) {
-                UserOpInfo memory opInfo = opInfos[i];
-
-                // the validatePrepayment and signature check should be verify by zkp
-
-                _validatePrepayment(i, ops[i], opInfo);
-
-                // Don't check sig
-                // (
-                //     uint256 sigTimeRange,
-                //     uint256 paymasterTimeRange
-                // ) = _validatePrepayment(i, ops[i], opInfo);
-                // _validateSigTimeRange(
-                //     i,
-                //     opInfo,
-                //     sigTimeRange,
-                //     paymasterTimeRange
-                // );
-            }
-
-            uint256 collected = 0;
+            uint256 actualGas = 0;
 
             for (uint256 i = 0; i < opslen; i++) {
-                collected += _executeUserOp(i, ops[i], opInfos[i]);
+                actualGas += _fugalExecuteUserOp(i, ops[i]);
             }
-
-            _compensate(beneficiary, collected);
-        } //unchecked
+        }
     }
 
     function simulateHandleOp(UserOperation calldata op) external override {
@@ -421,17 +427,17 @@ contract EntryPoint is IEntryPoint, StakeManager, WorldStateManager {
                     ? 0
                     : requiredPrefund - bal;
             }
-            // try
-            //     IAccount(sender).validateUserOp{
-            //         gas: mUserOp.verificationGasLimit
-            //     }(op, missingAccountFunds)
-            // returns (uint256 _sigTimeRange) {
-            //     sigTimeRange = _sigTimeRange;
-            // } catch Error(string memory revertReason) {
-            //     revert FailedOp(opIndex, address(0), revertReason);
-            // } catch {
-            //     revert FailedOp(opIndex, address(0), "AA23 reverted (or OOG)");
-            // }
+            try
+                IAccount(sender).validateUserOp{
+                    gas: mUserOp.verificationGasLimit
+                }(op, missingAccountFunds)
+            returns (uint256 _sigTimeRange) {
+                sigTimeRange = _sigTimeRange;
+            } catch Error(string memory revertReason) {
+                revert FailedOp(opIndex, address(0), revertReason);
+            } catch {
+                revert FailedOp(opIndex, address(0), "AA23 reverted (or OOG)");
+            }
             if (paymaster == address(0)) {
                 DepositInfo storage senderInfo = deposits[sender];
                 uint256 deposit = senderInfo.deposit;

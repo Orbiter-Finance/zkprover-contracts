@@ -59,10 +59,10 @@ abstract contract BaseAccount is IAccount {
     ) external virtual override returns (uint256 sigTimeRange) {
         _requireFromEntryPoint();
         sigTimeRange = 0; // Don't check signature
-        // if (userOp.initCode.length == 0) {
-        //     _validateAndUpdateNonce(userOp);
-        // }
-        // _payPrefund(missingAccountFunds);
+        if (userOp.initCode.length == 0) {
+            _validateAndUpdateNonce(userOp);
+        }
+        _payPrefund(missingAccountFunds);
     }
 
     /**

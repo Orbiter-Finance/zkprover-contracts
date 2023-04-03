@@ -101,6 +101,7 @@ describe("EntryPoint", function () {
   // Accounts
   let beneficiary: SignerWithAddress;
   let paymasterOwner: SignerWithAddress;
+  let dummyAddress: SignerWithAddress;
   const provider = ethers.provider;
 
   before(async function () {
@@ -110,6 +111,7 @@ describe("EntryPoint", function () {
     this.signers.admin = signers[0];
     beneficiary = signers[1];
     paymasterOwner = signers[2];
+    dummyAddress = signers[3];
 
     let verifyCode = await compile_yul("contracts/zkp/zkpVerifier.yul");
     // console.log(`verifiyCode ${verifyCode}`)
@@ -165,7 +167,7 @@ describe("EntryPoint", function () {
   });
 
   it("should succeed to handleOps", async function () {
-    const txLength = 15;
+    const txLength = 129;
     const ops: UserOperationStruct[] = [];
     const accountOwners: Wallet[] = [];
     for (let i = 0; i < txLength; i++) {
@@ -202,7 +204,7 @@ describe("EntryPoint", function () {
       .then(async (t) => await t.wait());
 
     const normalTx = await testToken
-      .transfer(accountOwners[1].address, BigNumber.from(100))
+      .transfer(dummyAddress.address, BigNumber.from(100))
       .then(async (t) => await t.wait());
 
     console.log(
@@ -213,15 +215,15 @@ describe("EntryPoint", function () {
       )} normal gas ${JSON.stringify(normalTx.gasUsed.toString())}`
     );
 
-    // for (const accountOwner of accountOwners) {
-    //   const balance = await testToken.balanceOf(accountOwner.address);
-    //   console.warn(
-    //     "accountOwner.address:",
-    //     accountOwner.address,
-    //     ", balance:",
-    //     balance + ""
-    //   );
-    // }
+    for (const accountOwner of accountOwners) {
+      const balance = await testToken.balanceOf(accountOwner.address);
+      console.warn(
+        "accountOwner.address:",
+        accountOwner.address,
+        ", balance:",
+        balance + ""
+      );
+    }
 
     // console.warn("resp.events:", resp.events);
   });
